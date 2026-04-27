@@ -1,42 +1,38 @@
 class Solution {
   public:
     bool isCyclic(int V, vector<vector<int>> &edges) {
-        // code here
-        vector<vector<int>> graph(V);
-        vector<int> indegree(V);
-        
+        vector<vector<int>> adj(V);
         for(vector<int> edge: edges) {
             int u = edge[0], v = edge[1];
-            graph[u].push_back(v);
-            indegree[v]++;
+            adj[u].push_back(v);
         }
         
-        // Find topological sort and check if length of topo == V or not
-        vector<int> topo;
-        queue<int> q;
+        vector<int> visited(V, 0);
+        vector<int> pathVisited(V, 0);
         
         for(int i=0; i<V; i++) {
-            if(indegree[i] == 0) {
-                q.push(i);
+            if(!visited[i]) {
+                if(dfs(i, adj, visited, pathVisited)) return true;
+            }
+        }
+        return false;
+    }
+    
+    bool dfs(int node, vector<vector<int>>& adj, vector<int>& visited, vector<int>& pathVisited) {
+        visited[node] = 1;
+        pathVisited[node] = 1;
+        
+        bool ans = false;
+        for(int nbr: adj[node]) {
+            if(!visited[nbr]) {
+                if(dfs(nbr, adj, visited, pathVisited)) return true;
+            } else if(pathVisited[nbr]) {
+                return true;
             }
         }
         
-        // Kahn's Algo - Topological Sort
-        while(!q.empty()) {
-            int top = q.front();
-            q.pop();
-            
-            topo.push_back(top);
-            
-            for(int nbr: graph[top]) {
-                indegree[nbr]--;
-                if(indegree[nbr] == 0) {
-                    q.push(nbr);
-                }
-            }
-        }
+        pathVisited[node] = 0; // backtrack
         
-        
-        return topo.size() != V;
+        return ans;
     }
 };
