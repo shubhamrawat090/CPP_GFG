@@ -18,11 +18,15 @@ class Solution {
         return false;
     }
     
-    bool dfs(int node, vector<vector<int>>& adj, vector<int>& visited, vector<int>& pathVisited) {
+    bool dfs(
+        int node, 
+        vector<vector<int>>& adj, 
+        vector<int>& visited, 
+        vector<int>& pathVisited
+    ) {
         visited[node] = 1;
         pathVisited[node] = 1;
         
-        bool ans = false;
         for(int nbr: adj[node]) {
             if(!visited[nbr]) {
                 if(dfs(nbr, adj, visited, pathVisited)) return true;
@@ -33,6 +37,6 @@ class Solution {
         
         pathVisited[node] = 0; // backtrack
         
-        return ans;
+        return false;
     }
 };
