@@ -1,72 +1,68 @@
 class Solution {
   public:
-    string findOrder(vector<string>& words) {
-    
-    // Adjacency list
-    vector<vector<int>> graph(26);     
-    
-    // In-degree of each character
-    vector<int> inDegree(26, 0);       
-    
-    // Tracks which characters are present
-    vector<bool> exists(26, false);    
-
-    // Mark existing characters
-    for (string& word : words) {
-        for (char ch : word) {
-            exists[ch - 'a'] = true;
-        }
-    }
-
-    // Build the graph from adjacent words
-    for (int i = 0; i + 1 < words.size(); ++i) {
-         string& w1 = words[i];
-         string& w2 = words[i + 1];
-        int len = min(w1.length(), w2.length());
-        int j = 0;
-
-        while (j < len && w1[j] == w2[j]) ++j;
-
-        if (j < len) {
-            int u = w1[j] - 'a';
-            int v = w2[j] - 'a';
-            graph[u].push_back(v);
-            inDegree[v]++;
-        } else if (w1.size() > w2.size()) {
-            
-            // Invalid input 
-            return "";
-        }
-    }
-
-    // Topological sort 
-    queue<int> q;
-    for (int i = 0; i < 26; ++i) {
-        if (exists[i] && inDegree[i] == 0) {
-            q.push(i);
-        }
-    }
-
-    string result;
-    while (!q.empty()) {
-        int u = q.front(); q.pop();
-        result += (char)(u + 'a');
-
-        for (int v : graph[u]) {
-            inDegree[v]--;
-            if (inDegree[v] == 0) {
-                q.push(v);
+    string findOrder(vector<string> &words) {
+        // code here
+        int n = words.size();
+        vector<unordered_set<char>> adj(26);
+        
+        unordered_map<char, int> indegree;
+        unordered_set<char> uniqueChars;
+        for(int i=0; i<n; i++) {
+            for(int j=0; j<words[i].size(); j++) {
+                uniqueChars.insert(words[i][j]);
+                indegree[words[i][j]] = 0;
             }
         }
-    }
-
-    // Check, there was a cycle or not
-    for (int i = 0; i < 26; ++i) {
-        if (exists[i] && inDegree[i] != 0) {
-            return "";
+        
+        for(int i=1; i<n; i++) {
+            string prev = words[i-1], curr = words[i];
+            int minLen = min(prev.size(), curr.size());
+            bool found = false;
+            for(int j=0; j<minLen; j++) {
+                if(prev[j] != curr[j]) {
+                    found = true;
+                    // u = prev[j], v = curr[j] ==> u-->v
+                    adj[prev[j]-'a'].insert(curr[j]);
+                    break; // DO not proceed further
+                    
+                    // CAN NOT CALCULATE INDEGREE HERE BECAUSE OF DUPLICATE NODES
+                }
+            }
+            if(!found && minLen != prev.size()) {
+                // prev string has 1 extra char and no dissimilarity is found
+                // prev = abcd, curr = abc ==> this means d > ''. WHICH IS IMPOSSIBLE
+                return "";
+            }
         }
+        
+        // Calculate indegree
+        for(char u: uniqueChars) {
+            for(char v: adj[u-'a']) {
+                indegree[v]++;
+            }
+        }
+        
+        // GET topological sort
+        string topo = "";
+        
+        queue<char> q;
+        
+        for(auto& indeg: indegree) {
+            if(indeg.second == 0) {
+                q.push(indeg.first);
+            }
+        }
+        
+        while(!q.empty()) {
+            char top = q.front();
+            q.pop();
+            topo.push_back(top);
+            for(char nbr: adj[top - 'a']) {
+                indegree[nbr]--;
+                if(indegree[nbr] == 0) q.push(nbr);
+            }
+        }
+        
+        return topo.size() != uniqueChars.size() ? "" : topo;
     }
-
-    return result;
-}
 };
