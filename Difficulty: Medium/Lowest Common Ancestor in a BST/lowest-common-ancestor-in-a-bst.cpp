@@ -16,15 +16,15 @@ class Node {
 class Solution {
   public:
     Node* LCA(Node* root, Node* n1, Node* n2) {
-        // code here
-        if(root == NULL) return root;
-        if(n1 == root || n2 == root) return root;
-        
-        Node* rightAns = LCA(root->right, n1, n2);
-        Node* leftAns = LCA(root->left, n1, n2);
-        
-        if(leftAns && rightAns) return root;
-        if(leftAns) return leftAns;
-        return rightAns;
+        while(root) {
+            if(n1->data < root->data && n2->data < root->data) {
+                root = root->left;
+            } else if(n1->data > root->data && n2->data > root->data) {
+                root = root->right;
+            } else {
+                break;
+            }
+        }
+        return root;
     }
 };
