@@ -14,14 +14,16 @@ class Solution {
                 int sum = nums[first] + nums[second] + nums[third];
 
                 if (sum == target) {
-                    third--;
                     // CANNOT DO second++ because that increases sum
+                    third--;
                 } else if (sum > target) {
                     third--;
                 } else {
                     // sum < target
-                    // first, second ......,    third is LESS
-                    // first, second .....third-1, third is ALSO LESS
+                    // first, second ......,       third      is LESS
+                    // first, second .....third-1, third      is ALSO LESS
+                    // total pairs = no. of elements b/w [second, third] - 1
+                    // [third-second+1]-1 ==> third - second
                     minSumCount += (third-second);
                     second++;
                 }
