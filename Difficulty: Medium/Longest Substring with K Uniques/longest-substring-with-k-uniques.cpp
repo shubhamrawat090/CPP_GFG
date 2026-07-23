@@ -2,32 +2,19 @@ class Solution {
   public:
     int longestKSubstr(string &s, int k) {
         // code here
-        vector<int> freq(26, 0);
-        int n = s.size();
-        int left = 0;
+        unordered_map<char, int> freq;
         int maxLen = -1;
+        int left = 0;
+        int n = s.size();
         for(int right=0; right<n; right++) {
-            freq[s[right]-'a']++;
-            
-            while(uniqueCharCount(freq) > k) {
-                freq[s[left]-'a']--;
+            freq[s[right]]++;
+            while(freq.size() > k) {
+                freq[s[left]]--;
+                if(freq[s[left]] == 0) freq.erase(s[left]);
                 left++;
             }
-            
-            if(uniqueCharCount(freq) == k) {
-                maxLen = max(maxLen, right-left+1);
-            }
+            if(freq.size() == k) maxLen = max(maxLen, right-left+1);
         }
         return maxLen;
-    }
-    
-    int uniqueCharCount(vector<int>& freq) {
-        int sum = 0;
-        for(int i=0; i<26; i++) {
-            int f = freq[i];
-            if(f >= 1) sum++;
-        }
-        
-        return sum;
     }
 };
